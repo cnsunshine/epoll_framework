@@ -17,7 +17,7 @@ Epoll<T>::~Epoll() {
 template<typename T>
 Epoll<T>::Epoll(int ServerPort, int EpollSize, int Timeout, int LISTENQ)
         :ServerPort(ServerPort), EpollSize(EpollSize), Timeout(Timeout), LISTENQ(LISTENQ) {
-
+    this->readFunc = NULL;
 }
 
 template<typename T>
@@ -141,6 +141,10 @@ void Epoll<T>::s_epoll_wait() {
                 this->updateAliveTime(sockFd, this->onlineList);
                 std::cout << "[Epoll::s_epoll_wait()] get message: pkg size " << this->msgPkgHead.size << std::endl;
                 //调用绑定的处理函数
+                if(this->readFunc == NULL){
+                    std::cout << "not bind solve func" << std::endl;
+                    exit(0);
+                }
                 SocketData<T> response;
                 this->readFunc({sockFd, msgPkgBSize, msgPkgBody}, &response);
                 this->sendData(response);
